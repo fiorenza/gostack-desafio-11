@@ -18,7 +18,7 @@ import {
   FoodPricing,
 } from './styles';
 
-interface Food {
+interface IFood {
   id: number;
   name: string;
   description: string;
@@ -28,11 +28,20 @@ interface Food {
 }
 
 const Orders: React.FC = () => {
-  const [orders, setOrders] = useState<Food[]>([]);
+  const [orders, setOrders] = useState<IFood[]>([]);
 
   useEffect(() => {
     async function loadOrders(): Promise<void> {
-      // Load orders from API
+      const response = await api.get<IFood[]>('orders');
+
+      const foodsApi = response.data.map(food => {
+        return {
+          ...food,
+          formattedValue: formatValue(food.price),
+        };
+      });
+
+      setOrders(foodsApi);
     }
 
     loadOrders();
@@ -59,7 +68,7 @@ const Orders: React.FC = () => {
               <FoodContent>
                 <FoodTitle>{item.name}</FoodTitle>
                 <FoodDescription>{item.description}</FoodDescription>
-                <FoodPricing>{item.formattedPrice}</FoodPricing>
+                <FoodPricing>{item.formattedValue}</FoodPricing>
               </FoodContent>
             </Food>
           )}
